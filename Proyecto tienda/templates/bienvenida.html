@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <div class="stars">★ &nbsp; ★ &nbsp; ★ &nbsp; ★ &nbsp; ★</div>
+  <hr class="divider">
+  <h1>PAHJAL</h1>
+  <p>W E S T E R N &nbsp; B O O T S</p>
+  <hr class="divider">
+</div>
+
+<div class="card" style="text-align:center;">
+  <div class="card-title" style="text-align:center;">
+    ¡Bienvenido, {{ nombre }} {{ apellido }}!
+  </div>
+  <div style="margin-bottom:24px;">
+  <div id="reloj" style="font-family:'Playfair Display',serif; font-size:2rem;
+                          color:var(--oro); letter-spacing:4px;"></div>
+  <div id="fecha" style="font-size:.85rem; color:var(--oro-claro);
+                          letter-spacing:2px; margin-top:4px;"></div>
+  <p style="color:var(--oro-claro); margin-top:16px; font-size:.95rem;">
+    ¿Qué deseas hacer hoy?
+  </p>
+</div>
+
+<script>
+  const diasES  = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  const mesesES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                   "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+  function actualizarReloj() {
+    const ahora = new Date();
+    let h = ahora.getHours();
+    let m = ahora.getMinutes().toString().padStart(2,"0");
+    let s = ahora.getSeconds().toString().padStart(2,"0");
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+
+    document.getElementById("reloj").textContent = `${h}:${m}:${s} ${ampm}`;
+    document.getElementById("fecha").textContent =
+      `${diasES[ahora.getDay()]}, ${ahora.getDate()} de ${mesesES[ahora.getMonth()]} de ${ahora.getFullYear()}`;
+  }
+
+  actualizarReloj();
+  setInterval(actualizarReloj, 1000);
+</script>
+
+  <!-- Botones para todos -->
+  <div class="grid-2" style="margin-bottom:12px;">
+    <a href="/nueva-venta" class="btn-card btn-card-verde">
+      <span class="btn-card-icon">🛒</span>
+      <span class="btn-card-label">Nueva venta</span>
+    </a>
+    <a href="/buscar-inventario" class="btn-card btn-card-gris">
+      <span class="btn-card-icon">🔍</span>
+      <span class="btn-card-label">Buscar en inventario</span>
+    </a>
+  </div>
+
+  {% if session.rol == 'admin' %}
+  <div class="seccion-sep">
+    <span>ADMINISTRACIÓN</span>
+  </div>
+
+  <!-- Fila 1 admin -->
+  <div class="grid-2" style="margin-bottom:12px;">
+    <a href="/nuevo-articulo" class="btn-card btn-card-rojo">
+      <span class="btn-card-icon">👢</span>
+      <span class="btn-card-label">Agregar artículo</span>
+    </a>
+    <a href="/articulos" class="btn-card btn-card-rojo">
+      <span class="btn-card-icon">📦</span>
+      <span class="btn-card-label">Ver artículos</span>
+    </a>
+  </div>
+
+  <!-- Fila 2 admin -->
+  <div class="grid-3" style="margin-bottom:12px;">
+    <a href="/nuevo-usuario" class="btn-card btn-card-gris">
+      <span class="btn-card-icon">👤</span>
+      <span class="btn-card-label">Agregar usuario</span>
+    </a>
+    <a href="/etiquetas" class="btn-card btn-card-gris">
+      <span class="btn-card-icon">🏷️</span>
+      <span class="btn-card-label">Etiquetas</span>
+    </a>
+    <a href="/corte" class="btn-card btn-card-gris">
+      <span class="btn-card-icon">📊</span>
+      <span class="btn-card-label">Corte del día</span>
+    </a>
+  </div>
+  {% endif %}
+
+  <div class="seccion-sep" style="margin-bottom:12px;"><span></span></div>
+
+  <a href="/logout" class="btn btn-gris btn-full">
+    🚪 &nbsp; Cerrar sesión
+  </a>
+</div>
+
+<style>
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .btn-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: transform .15s, opacity .15s;
+    border: 1px solid transparent;
+  }
+  .btn-card:hover {
+    transform: translateY(-2px);
+    opacity: .9;
+  }
+  .btn-card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  .btn-card-label {
+    font-family: 'Playfair Display', serif;
+    font-size: .8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--blanco);
+  }
+  .btn-card-verde {
+    background: #2d6a2d;
+    border-color: #4caf50;
+  }
+  .btn-card-rojo {
+    background: var(--rojo);
+    border-color: var(--oro);
+  }
+  .btn-card-gris {
+    background: var(--campo-bg);
+    border-color: var(--oro);
+  }
+  .seccion-sep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 12px;
+    color: var(--oro);
+    font-size: .7rem;
+    letter-spacing: 3px;
+  }
+  .seccion-sep::before,
+  .seccion-sep::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--oro);
+    opacity: .4;
+  }
+</style>
+
+{% endblock %}

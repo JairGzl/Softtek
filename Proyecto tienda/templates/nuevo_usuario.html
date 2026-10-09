@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">NUEVO USUARIO</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+  <form method="POST">
+
+    <div class="seccion-titulo">🌎 Ubicación</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>PAÍS *</label>
+        <select name="id_pais" id="id_pais" required>
+          <option value="">— Selecciona país —</option>
+          {% for p in paises %}
+            <option value="{{ p[0] }}">{{ p[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ESTADO *</label>
+        <select name="id_estado" id="id_estado" required disabled>
+          <option value="">— Primero selecciona país —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CIUDAD *</label>
+        <select name="id_ciudad" id="id_ciudad" required disabled>
+          <option value="">— Primero selecciona estado —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>COLONIA *</label>
+        <select name="id_colonia" id="id_colonia" required disabled>
+          <option value="">— Primero selecciona ciudad —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:200px;">
+        <label>CÓDIGO POSTAL</label>
+        <input type="text" id="codigo_postal_auto" name="codigo_postal"
+               placeholder="Se llena automático" maxlength="5" readonly style="opacity:.7; cursor:not-allowed;">
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:20px 0;">
+    <div class="seccion-titulo">📍 Dirección</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CALLE</label>
+        <input type="text" name="calle" placeholder="Ej: Av. Juárez" maxlength="50">
+      </div>
+      <div class="form-group" style="max-width:150px;">
+        <label>NÚM. EXTERIOR</label>
+        <input type="number" name="num_ext" placeholder="245">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>ENTRE CALLE 1</label>
+        <input type="text" name="entre_calle_1" placeholder="Ej: Calle Morelos" maxlength="50">
+      </div>
+      <div class="form-group">
+        <label>ENTRE CALLE 2</label>
+        <input type="text" name="entre_calle_2" placeholder="Ej: Calle Hidalgo" maxlength="50">
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:20px 0;">
+    <div class="seccion-titulo">🔑 Credenciales</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CONTRASEÑA *</label>
+        <input type="password" name="contrasena" id="contrasena" placeholder="••••••••" required maxlength="50">
+      </div>
+      <div class="form-group">
+        <label>CONFIRMAR CONTRASEÑA *</label>
+        <input type="password" name="confirmar" id="confirmar" placeholder="••••••••" required maxlength="50">
+      </div>
+    </div>
+    <p id="msg_pass" style="font-size:.82rem; margin-top:4px; min-height:18px;"></p>
+
+    <hr class="divider" style="margin:20px 0;">
+    <div class="seccion-titulo">👤 Datos personales</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>NOMBRE *</label>
+        <input type="text" name="nombre" placeholder="Ej: Juan" required maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>APELLIDO PATERNO *</label>
+        <input type="text" name="apellido_p" placeholder="Ej: García" required maxlength="15">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>APELLIDO MATERNO *</label>
+        <input type="text" name="apellido_m" placeholder="Ej: López" required maxlength="15">
+      </div>
+      <div class="form-group">
+        <label>TELÉFONO</label>
+        <input type="text" name="telefono" placeholder="Ej: 8441234567" maxlength="10">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CORREO ELECTRÓNICO *</label>
+        <input type="email" name="correo" placeholder="correo@ejemplo.com" required maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>SUCURSAL *</label>
+        <select name="id_sucursal" required>
+          <option value="">— Selecciona —</option>
+          {% for s in sucursales %}
+            <option value="{{ s[0] }}">{{ s[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+  <label>ROL *</label>
+  <select name="rol" required>
+    <option value="">— Selecciona —</option>
+    <option value="vendedor">Vendedor</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
+    
+
+
+    <div class="nav-btns" style="margin-top:28px;">
+      <a href="/bienvenida" class="btn btn-gris">← Cancelar</a>
+      <button type="submit" class="btn btn-verde">✅ Guardar usuario</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  const selPais    = document.getElementById("id_pais");
+  const selEstado  = document.getElementById("id_estado");
+  const selCiudad  = document.getElementById("id_ciudad");
+  const selColonia = document.getElementById("id_colonia");
+  const inpCP      = document.getElementById("codigo_postal_auto");
+
+  function resetSelect(sel, placeholder) {
+    sel.innerHTML = `<option value="">${placeholder}</option>`;
+    sel.disabled  = true;
+  }
+
+  selPais.addEventListener("change", function () {
+    resetSelect(selEstado,  "— Selecciona estado —");
+    resetSelect(selCiudad,  "— Primero selecciona estado —");
+    resetSelect(selColonia, "— Primero selecciona ciudad —");
+    inpCP.value = "";
+    if (!this.value) return;
+    fetch(`/api/estados/${this.value}`).then(r => r.json()).then(data => {
+      if (data.length === 0) { selEstado.innerHTML = '<option value="">Sin estados registrados</option>'; return; }
+      selEstado.innerHTML = '<option value="">— Selecciona estado —</option>';
+      data.forEach(e => selEstado.innerHTML += `<option value="${e.id}">${e.nombre}</option>`);
+      selEstado.disabled = false;
+    });
+  });
+
+  selEstado.addEventListener("change", function () {
+    resetSelect(selCiudad,  "— Selecciona ciudad —");
+    resetSelect(selColonia, "— Primero selecciona ciudad —");
+    inpCP.value = "";
+    if (!this.value) return;
+    fetch(`/api/ciudades/${this.value}`).then(r => r.json()).then(data => {
+      if (data.length === 0) { selCiudad.innerHTML = '<option value="">Sin ciudades registradas</option>'; return; }
+      selCiudad.innerHTML = '<option value="">— Selecciona ciudad —</option>';
+      data.forEach(c => selCiudad.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
+      selCiudad.disabled = false;
+    });
+  });
+
+  selCiudad.addEventListener("change", function () {
+    resetSelect(selColonia, "— Selecciona colonia —");
+    inpCP.value = "";
+    if (!this.value) return;
+    fetch(`/api/colonias/${this.value}`).then(r => r.json()).then(data => {
+      if (data.length === 0) { selColonia.innerHTML = '<option value="">Sin colonias registradas</option>'; return; }
+      selColonia.innerHTML = '<option value="">— Selecciona colonia —</option>';
+      data.forEach(c => selColonia.innerHTML += `<option value="${c.id}" data-cp="${c.cp}">${c.nombre} (CP: ${c.cp})</option>`);
+      selColonia.disabled = false;
+    });
+  });
+
+  selColonia.addEventListener("change", function () {
+    const opt = this.options[this.selectedIndex];
+    inpCP.value = opt ? (opt.dataset.cp || "") : "";
+  });
+
+  const inpPass    = document.getElementById("contrasena");
+  const inpConfirm = document.getElementById("confirmar");
+  const msgPass    = document.getElementById("msg_pass");
+  function verificarPass() {
+    const p1 = inpPass.value, p2 = inpConfirm.value;
+    if (!p2) { msgPass.textContent = ""; return; }
+    if (p1 === p2) { msgPass.style.color = "#2ecc71"; msgPass.textContent = "✅ Las contraseñas coinciden"; }
+    else           { msgPass.style.color = "#ff6b6b"; msgPass.textContent = "❌ Las contraseñas no coinciden"; }
+  }
+  inpPass.addEventListener("input",    verificarPass);
+  inpConfirm.addEventListener("input", verificarPass);
+</script>
+
+{% endblock %}

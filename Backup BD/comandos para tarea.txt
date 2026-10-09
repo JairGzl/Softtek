@@ -1,0 +1,32 @@
+- primero creamos el respaldo (Backup);
+BACKUP DATABASE Tienda
+TO DISK = 'C:\Users\Lenovo Yoga X380\Desktop\Base de datos\Backup BD\PAHJAL_respaldo.bak'
+WITH FORMAT,
+     NAME = 'Respaldo completo PAHJAL',
+     DESCRIPTION = 'Respaldo antes de tarea';
+-verificamos:
+RESTORE VERIFYONLY
+FROM DISK = 'C:\Users\Lenovo Yoga X380\Desktop\Base de datos\Backup BD\PAHJAL_respaldo.bak'
+-mostrar fecha y hora en que se realizo:
+RESTORE HEADERONLY
+FROM DISK = RESTORE HEADERONLY
+FROM DISK ='C:\Users\Lenovo Yoga X380\Desktop\Base de datos\Backup BD\PAHJAL_respaldo.bak'
+
+
+--antes de borrar desconectamos todas las conexiones a nuestra base de datos
+USE master;
+GO
+ALTER DATABASE Tienda SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+GO
+--ahora si borramos nuestra base de datos:
+DROP DATABASE Tienda;
+GO
+--verificamos que ya no exiata:
+SELECT name FROM sys.databases
+WHERE name = 'Tienda';
+
+--ahora si restauramos nuestra base de datos:
+RESTORE DATABASE Tienda
+FROM DISK = 'C:\Users\Lenovo Yoga X380\Desktop\Base de datos\Backup BD\PAHJAL_respaldo.bak'
+WITH RECOVERY;
+GO

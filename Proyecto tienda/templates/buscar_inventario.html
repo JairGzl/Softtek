@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">BUSCAR INVENTARIO</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+
+  <form method="GET" action="/buscar-inventario">
+    <div class="form-row">
+      <div class="form-group">
+        <label>NOMBRE</label>
+        <input type="text" name="nombre" value="{{ nombre }}" placeholder="Ej: Bota Vaquera">
+      </div>
+      <div class="form-group">
+        <label>MARCA</label>
+        <input type="text" name="marca" value="{{ marca }}" placeholder="Ej: Durango">
+      </div>
+      <div class="form-group">
+        <label>MODELO</label>
+        <input type="text" name="modelo" value="{{ modelo }}" placeholder="Ej: DRD0134">
+      </div>
+      <div class="form-group">
+        <label>TALLA</label>
+        <input type="text" name="talla" value="{{ talla }}" placeholder="Ej: 26">
+      </div>
+      <div class="form-group">
+        <label>COLOR</label>
+        <input type="text" name="color" value="{{ color }}" placeholder="Ej: Café">
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button type="submit" class="btn btn-rojo">🔍 Buscar</button>
+      <a href="/buscar-inventario" class="btn btn-gris">🔄 Limpiar</a>
+    </div>
+  </form>
+
+  {% if buscando %}
+  <hr class="divider" style="margin:24px 0;">
+
+  {% if resultados %}
+  <p style="color:var(--oro-claro); font-size:.85rem; margin-bottom:12px;">
+    {{ resultados|length }} resultado(s) encontrado(s)
+  </p>
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>NOMBRE</th>
+        <th>MARCA</th>
+        <th>MODELO</th>
+        <th>TALLA</th>
+        <th>COLOR</th>
+        <th>CÓDIGO</th>
+        <th style="text-align:center;">DISPONIBLE</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in resultados %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] or "—" }}</td>
+        <td>{{ r[3] or "—" }}</td>
+        <td>{{ r[4] or "—" }}</td>
+        <td style="font-family:monospace; font-size:.8rem;">{{ r[5] or "—" }}</td>
+        <td style="text-align:center;">
+          {% if r[6] %}
+            <span style="color:#4caf50; font-size:1.1rem;">✅</span>
+          {% else %}
+            <span style="color:var(--rojo); font-size:1.1rem;">❌</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <p style="text-align:center; color:var(--oro-claro); padding:30px 0;">
+    📭 No se encontraron resultados.
+  </p>
+  {% endif %}
+  {% endif %}
+
+  <div style="margin-top:24px;">
+    <a href="/bienvenida" class="btn btn-gris">← Volver al inicio</a>
+  </div>
+</div>
+
+<style>
+  .form-row { display:flex; gap:16px; flex-wrap:wrap; }
+  .form-row .form-group { flex:1; min-width:140px; }
+  .tabla { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:10px 12px; text-align:left; font-family:'Playfair Display',serif; font-size:.8rem; }
+  .tabla td { padding:9px 12px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+  .tabla tr:hover td { background:var(--campo-bg); }
+</style>
+
+{% endblock %}

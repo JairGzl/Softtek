@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">NUEVO ARTÍCULO</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+  <form method="POST">
+
+    <div class="seccion-titulo">👢 Datos del producto</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>NOMBRE *</label>
+        <input type="text" name="nombre" placeholder="Ej: Bota Vaquera" required maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>MARCA *</label>
+        <input type="text" name="marca" placeholder="Ej: Durango" required maxlength="20">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>MODELO</label>
+        <input type="text" name="modelo" placeholder="Ej: DRD0134" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>TIPO DE ARTÍCULO *</label>
+        <select name="id_tipo" id="id_tipo" required onchange="mostrarVariantes()">
+          <option value="">— Selecciona tipo —</option>
+          {% for t in tipos %}
+            <option value="{{ t[0] }}" data-variante="{{ t[2] }}">{{ t[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>SUCURSAL *</label>
+        <select name="id_sucursal" required>
+          <option value="">— Selecciona —</option>
+          {% for s in sucursales %}
+            <option value="{{ s[0] }}">{{ s[1] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin:24px 0;">
+    <div class="seccion-titulo">🎨 Variantes</div>
+
+    <div id="contenedor_variantes">
+      <!-- Las variantes se agregan aquí dinámicamente -->
+    </div>
+
+    <button type="button" onclick="agregarVariante()"
+            class="btn btn-gris" style="margin-top:10px;">
+      ➕ Agregar variante
+    </button>
+
+    <div class="nav-btns" style="margin-top:28px;">
+      <a href="/bienvenida" class="btn btn-gris">← Cancelar</a>
+      <button type="submit" class="btn btn-verde">✅ Guardar producto</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // Tipos que tienen talla y color (pon los id_TIPO que apliquen)
+  // Lo controlas desde la BD con la columna TIENE_VARIANTES
+  let tieneVariantes = false;
+  let contadorVariantes = 0;
+
+  function mostrarVariantes() {
+    const select = document.getElementById("id_tipo");
+    const opt = select.options[select.selectedIndex];
+    tieneVariantes = opt.dataset.variante === "1";
+    // Limpiar variantes existentes al cambiar tipo
+    document.getElementById("contenedor_variantes").innerHTML = "";
+    contadorVariantes = 0;
+    agregarVariante();
+  }
+
+  function agregarVariante() {
+    const i = contadorVariantes++;
+    const div = document.createElement("div");
+    div.className = "variante-bloque";
+    div.id = `variante_${i}`;
+    div.innerHTML = `
+      <div style="border:1px solid var(--oro); border-radius:6px; padding:16px; margin-bottom:12px; position:relative;">
+        <div style="position:absolute; top:10px; right:12px;">
+          <button type="button" onclick="quitarVariante(${i})"
+                  style="background:none; border:none; color:var(--rojo); font-size:1.1rem; cursor:pointer;">✕</button>
+        </div>
+        <div class="form-row">
+          ${tieneVariantes ? `
+          <div class="form-group">
+            <label>TALLA</label>
+            <input type="text" name="talla_${i}" placeholder="Ej: 26" maxlength="5">
+          </div>
+          <div class="form-group">
+            <label>COLOR</label>
+            <input type="text" name="color_${i}" placeholder="Ej: Café" maxlength="20">
+          </div>` : ""}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>CÓDIGO DE BARRAS</label>
+            <input type="text" name="codigo_${i}"
+                   placeholder="Escanea o deja vacío para SKU automático" maxlength="20">
+          </div>
+          <div class="form-group">
+            <label>PRECIO</label>
+            <input type="number" name="precio_${i}" placeholder="Ej: 1500.00" step="0.01" min="0">
+          </div>
+          <div class="form-group" style="max-width:120px;">
+            <label>STOCK *</label>
+            <input type="number" name="stock_${i}" placeholder="0" min="0" value="1" required>
+          </div>
+        </div>
+        <input type="hidden" name="variante_idx" value="${i}">
+      </div>`;
+    document.getElementById("contenedor_variantes").appendChild(div);
+  }
+
+  function quitarVariante(i) {
+    const el = document.getElementById(`variante_${i}`);
+    if (el) el.remove();
+  }
+
+  // Agregar primera variante al cargar
+  window.onload = () => agregarVariante();
+</script>
+
+<style>
+  .form-row { display:flex; gap:16px; flex-wrap:wrap; }
+  .form-row .form-group { flex:1; min-width:160px; }
+</style>
+
+{% endblock %}

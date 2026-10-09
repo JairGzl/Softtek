@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">ARTÍCULOS</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div class="card-title">👢 Productos registrados</div>
+    <a href="/nuevo-articulo" class="btn btn-rojo">➕ Nuevo producto</a>
+  </div>
+
+  {% if productos %}
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>NOMBRE</th>
+        <th>MARCA</th>
+        <th>MODELO</th>
+        <th>TIPO</th>
+        <th style="text-align:center;">VARIANTES</th>
+        <th style="text-align:center;">STOCK TOTAL</th>
+        <th style="text-align:center;">ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in productos %}
+      <tr>
+        <td>{{ p[1] }}</td>
+        <td>{{ p[2] }}</td>
+        <td>{{ p[3] or "—" }}</td>
+        <td>{{ p[4] }}</td>
+        <td style="text-align:center;">{{ p[5] }}</td>
+        <td style="text-align:center;">
+          <span style="color:{{ 'var(--rojo)' if p[6] == 0 else 'var(--oro-claro)' }};">
+            {{ p[6] or 0 }}
+          </span>
+        </td>
+        <td style="text-align:center;">
+          <a href="/articulos/{{ p[0] }}" class="btn btn-gris"
+             style="padding:4px 12px; font-size:.8rem;">
+            Ver / Editar
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="text-align:center; color:var(--oro-claro); padding:30px 0;">
+    📭 No hay productos registrados.
+  </p>
+  {% endif %}
+
+  <div style="margin-top:24px;">
+    <a href="/bienvenida" class="btn btn-gris">← Volver al inicio</a>
+  </div>
+</div>
+
+<style>
+  .tabla { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:10px 12px; text-align:left; font-family:'Playfair Display',serif; font-size:.8rem; }
+  .tabla td { padding:9px 12px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+  .tabla tr:hover td { background:var(--campo-bg); }
+</style>
+{% endblock %}

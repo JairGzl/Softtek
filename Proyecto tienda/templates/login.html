@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <div class="stars">★ &nbsp; ★ &nbsp; ★ &nbsp; ★ &nbsp; ★</div>
+  <hr class="divider">
+  <h1>PAHJAL</h1>
+  <p>W E S T E R N &nbsp; B O O T S</p>
+  <hr class="divider">
+</div>
+
+<div class="card">
+  <div class="card-title">🔐 INICIAR SESIÓN</div>
+  <form method="POST">
+    <div class="form-group">
+      <label>CORREO ELECTRÓNICO *</label>
+      <input type="email" name="correo" placeholder="correo@ejemplo.com" required autofocus maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>CONTRASEÑA *</label>
+      <input type="password" name="contrasena" placeholder="••••••••" required maxlength="50">
+    </div>
+    <button type="submit" class="btn btn-rojo btn-full" style="margin-top:8px;">
+      🤠 &nbsp; ENTRAR
+    </button>
+  </form>
+</div>
+
+{% endblock %}

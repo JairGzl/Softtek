@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">CORTE DEL DÍA</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+
+  <!-- Filtro de fecha -->
+  <form method="GET" action="/corte" style="display:flex; gap:12px; align-items:flex-end; margin-bottom:24px;">
+    <div class="form-group" style="margin:0; flex:1;">
+      <label>FECHA</label>
+      <input type="date" name="fecha" value="{{ fecha or '' }}">
+    </div>
+    <button type="submit" class="btn btn-rojo">🔍 Consultar</button>
+    <a href="/corte" class="btn btn-gris">Hoy</a>
+  </form>
+
+  {% if tickets %}
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>#Ticket</th>
+        <th>Hora</th>
+        <th>Vendedor</th>
+        <th>Método pago</th>
+        <th style="text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tickets %}
+      <tr>
+        <td>#{{ t[0] }}</td>
+        <td>{{ t[2] }}</td>
+        <td>{{ t[3] }}</td>
+        <td>{{ t[4] }}</td>
+        <td style="text-align:right;">${{ "%.2f"|format(t[5]) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if desglose %}
+<div style="margin-top:18px; padding:12px 16px; background:var(--campo-bg); border-radius:6px;">
+  <p style="font-family:'Playfair Display',serif; color:var(--oro); margin:0 0 10px;">
+    DESGLOSE POR MÉTODO DE PAGO
+  </p>
+  {% for d in desglose %}
+  <div style="display:flex; justify-content:space-between; padding:4px 0;
+              border-bottom:1px solid rgba(255,255,255,0.05);">
+    <span style="color:var(--crema);">{{ d[0] }}</span>
+    <span style="color:var(--oro-claro);">${{ "%.2f"|format(d[1]) }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+  <div style="text-align:right; margin-top:18px; padding-top:12px; border-top:2px solid var(--rojo);">
+    <span style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--oro-claro);">
+      TOTAL DEL DÍA:
+    </span>
+    <span style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--blanco); margin-left:10px;">
+      ${{ "%.2f"|format(total_dia) }}
+    </span>
+  </div>
+
+  {% else %}
+  <p style="text-align:center; color:var(--oro-claro); padding:30px 0;">
+    📭 No hay ventas registradas para este día.
+  </p>
+  {% endif %}
+
+  <div style="margin-top:24px;">
+    <a href="/bienvenida" class="btn btn-gris">← Volver al inicio</a>
+  </div>
+
+</div>
+
+<style>
+  .tabla { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:10px 12px; text-align:left; font-family:'Playfair Display',serif; font-size:.8rem; }
+  .tabla td { padding:9px 12px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+  .tabla tr:hover td { background:var(--campo-bg); }
+</style>
+
+{% endblock %}

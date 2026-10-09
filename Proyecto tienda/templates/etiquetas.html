@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">IMPRIMIR ETIQUETAS</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+  <div class="card-title">🏷️ Selecciona las variantes</div>
+  <form method="POST" action="/generar-etiquetas">
+
+    <div style="margin-bottom:16px; display:flex; gap:10px;">
+      <button type="button" onclick="seleccionarTodos(true)"
+              class="btn btn-gris" style="padding:6px 14px; font-size:.8rem;">
+        ✅ Seleccionar todos
+      </button>
+      <button type="button" onclick="seleccionarTodos(false)"
+              class="btn btn-gris" style="padding:6px 14px; font-size:.8rem;">
+        ❌ Quitar selección
+      </button>
+    </div>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th style="width:40px;"></th>
+          <th>NOMBRE</th>
+          <th>MARCA</th>
+          <th>TALLA</th>
+          <th>COLOR</th>
+          <th>PRECIO</th>
+          <th>STOCK</th>
+          <th>CÓDIGO</th>
+          <th style="text-align:center;">ESTADO</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in variantes %}
+        <tr style="{{ 'background:rgba(76,175,80,0.08);' if v[8] else '' }}">
+          <td style="text-align:center;">
+            <input type="checkbox" name="variantes" value="{{ v[0] }}"
+                    class="chk-variante" style="width:16px; height:16px; cursor:pointer; opacity:1;">
+          </td>
+          <td>{{ v[1] }}</td>
+          <td>{{ v[2] }}</td>
+          <td>{{ v[3] or "—" }}</td>
+          <td>{{ v[4] or "—" }}</td>
+          <td>{{ "$%.2f"|format(v[5]) if v[5] else "—" }}</td>
+          <td>{{ v[7] }}</td>
+          <td style="font-family:monospace;">{{ v[6] or "—" }}</td>
+          <td style="text-align:center;">
+            {% if v[8] %}
+              <span style="color:#4caf50; font-size:.85rem;">✅ Impresa</span>
+            {% else %}
+              <span style="color:var(--oro-claro); font-size:.85rem;">⏳ Pendiente</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="nav-btns" style="margin-top:24px;">
+      <a href="/bienvenida" class="btn btn-gris">← Cancelar</a>
+      <button type="submit" class="btn btn-rojo">🖨️ Generar PDF</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  function seleccionarTodos(estado) {
+    document.querySelectorAll(".chk-variante").forEach(chk => chk.checked = estado);
+  }
+</script>
+
+<style>
+  .tabla { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:10px 12px; text-align:left; font-family:'Playfair Display',serif; letter-spacing:1px; font-size:.8rem; }
+  .tabla td { padding:9px 12px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+  .tabla tr:hover td { background:var(--campo-bg); cursor:pointer; }
+</style>
+
+{% endblock %}

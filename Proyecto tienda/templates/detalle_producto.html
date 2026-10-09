@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">{{ producto[1] }}</h1>
+  <p>{{ producto[2] }} {% if producto[3] %}— {{ producto[3] }}{% endif %}</p>
+  <hr class="divider">
+</div>
+
+<div class="card wide">
+  {% if request.args.get('confirmar_eliminar') %}
+  <div style="background:#5a0000; border:1px solid var(--rojo); border-radius:6px;
+              padding:16px; margin-bottom:20px;">
+    <p style="color:#ffaaaa; margin-bottom:12px; font-size:.9rem;">
+      Esta variante tiene ventas registradas. Si la eliminas, también se borrará su historial de esas ventas.
+    </p>
+    <form method="POST" action="/variante/{{ request.args.get('confirmar_eliminar') }}/eliminar" style="display:inline;">
+      <input type="hidden" name="id_producto" value="{{ producto[0] }}">
+      <input type="hidden" name="forzar" value="1">
+      <button type="submit" class="btn btn-rojo">🗑️ Eliminar de todas formas</button>
+    </form>
+  </div>
+  {% endif %}
+  <div class="card-title">🎨 Variantes</div>
+
+  {% if variantes %}
+  <table class="tabla" style="margin-bottom:24px;">
+    <thead>
+      <tr>
+        <th>TALLA</th>
+        <th>COLOR</th>
+        <th>CÓDIGO</th>
+        <th>STOCK</th>
+        <th>PRECIO</th>
+        <th style="text-align:center;">ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in variantes %}
+      <tr>
+        <td>{{ v[1] or "—" }}</td>
+        <td>{{ v[2] or "—" }}</td>
+        <td style="font-family:monospace;">{{ v[3] or "—" }}</td>
+        <td>
+          <span style="color:{{ 'var(--rojo)' if v[4] == 0 else 'var(--oro-claro)' }};">
+            {{ v[4] }}
+          </span>
+        </td>
+        <td>{{ "$%.2f"|format(v[5]) if v[5] else "—" }}</td>
+        <td style="text-align:center; display:flex; gap:6px; justify-content:center;">
+          <button onclick="abrirEditar({{ v[0] }}, '{{ v[1] or '' }}', '{{ v[2] or '' }}',
+                                '{{ v[3] or '' }}', {{ v[4] }},
+                                '{{ v[5] or '' }}')"
+                  class="btn btn-gris" style="padding:4px 10px; font-size:.8rem;">
+          ✏️
+          </button>
+          <button onclick="confirmarEliminar({{ v[0] }})"
+                  class="btn btn-gris" style="padding:4px 10px; font-size:.8rem; border-color:var(--rojo); color:#ff8888;">
+          🗑️
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--oro-claro); margin-bottom:20px;">Sin variantes registradas.</p>
+  {% endif %}
+
+  <hr class="divider" style="margin:20px 0;">
+  <div class="card-title">➕ Agregar variante</div>
+
+  <form method="POST" action="/articulos/{{ producto[0] }}/agregar-variante">
+    <div class="form-row">
+      <div class="form-group">
+        <label>TALLA</label>
+        <input type="text" name="talla" placeholder="Ej: 26" maxlength="5">
+      </div>
+      <div class="form-group">
+        <label>COLOR</label>
+        <input type="text" name="color" placeholder="Ej: Café" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>CÓDIGO DE BARRAS</label>
+        <input type="text" name="codigo" placeholder="Vacío = SKU automático" maxlength="20">
+      </div>
+      <div class="form-group" style="max-width:120px;">
+        <label>STOCK *</label>
+        <input type="number" name="stock" value="1" min="0" required>
+      </div>
+      <div class="form-group">
+        <label>PRECIO</label>
+        <input type="number" name="precio" placeholder="Ej: 1500.00" step="0.01" min="0">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-verde" style="margin-top:8px;">
+      ✅ Agregar variante
+    </button>
+  </form>
+
+  <div style="margin-top:24px;">
+    <a href="/articulos" class="btn btn-gris">← Volver a artículos</a>
+  </div>
+</div>
+
+<!-- Modal editar variante -->
+<div id="modal-editar" style="display:none; position:fixed; top:0; left:0; width:100%;
+     height:100%; background:rgba(0,0,0,0.7); z-index:999; align-items:center; justify-content:center;">
+  <div style="background:var(--fondo); border:1px solid var(--oro); border-radius:10px;
+              padding:28px; width:90%; max-width:480px;">
+    <h3 style="font-family:'Playfair Display',serif; color:var(--oro); margin:0 0 20px;">
+      Editar variante
+    </h3>
+    <form method="POST" id="form-editar">
+      <input type="hidden" name="id_producto" value="{{ producto[0] }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label>TALLA</label>
+          <input type="text" name="talla" id="e-talla" maxlength="5">
+        </div>
+        <div class="form-group">
+          <label>COLOR</label>
+          <input type="text" name="color" id="e-color" maxlength="20">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>CÓDIGO DE BARRAS</label>
+          <input type="text" name="codigo" id="e-codigo" maxlength="20">
+        </div>
+        <div class="form-group" style="max-width:120px;">
+          <label>STOCK</label>
+          <input type="number" name="stock" id="e-stock" min="0">
+        </div>
+        <div class="form-group">
+          <label>PRECIO</label>
+          <input type="number" name="precio" id="e-precio" step="0.01" min="0">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:16px;">
+        <button type="button" onclick="cerrarModal()"
+                class="btn btn-gris">Cancelar</button>
+        <button type="submit" class="btn btn-verde">✅ Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal eliminar variante -->
+<div id="modal-eliminar" style="display:none; position:fixed; top:0; left:0; width:100%;
+     height:100%; background:rgba(0,0,0,0.7); z-index:999; align-items:center; justify-content:center;">
+  <div style="background:var(--fondo); border:1px solid var(--rojo); border-radius:10px;
+              padding:28px; width:90%; max-width:420px; text-align:center;">
+    <h3 style="font-family:'Playfair Display',serif; color:var(--rojo); margin:0 0 16px;">
+      ⚠️ Eliminar variante
+    </h3>
+    <p style="color:var(--crema); margin-bottom:24px; font-size:.9rem;">
+      ¿Seguro que quieres eliminar esta variante? Esta acción no se puede deshacer.
+    </p>
+    <form method="POST" id="form-eliminar">
+      <input type="hidden" name="id_producto" value="{{ producto[0] }}">
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button type="button" onclick="cerrarModalEliminar()"
+                class="btn btn-gris">Cancelar</button>
+        <button type="submit" class="btn btn-rojo">🗑️ Eliminar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function abrirEditar(id, talla, color, codigo, stock, precio) {
+    document.getElementById("form-editar").action = `/variante/${id}/editar`;
+    document.getElementById("e-talla").value  = talla;
+    document.getElementById("e-color").value  = color;
+    document.getElementById("e-codigo").value = codigo;
+    document.getElementById("e-stock").value  = stock;
+    document.getElementById("e-precio").value = precio;
+    const modal = document.getElementById("modal-editar");
+    modal.style.display = "flex";
+  }
+  function cerrarModal() {
+    document.getElementById("modal-editar").style.display = "none";
+  }
+
+  function confirmarEliminar(id) {
+    document.getElementById("form-eliminar").action = `/variante/${id}/eliminar`;
+    document.getElementById("modal-eliminar").style.display = "flex";
+  }
+  function cerrarModalEliminar() {
+    document.getElementById("modal-eliminar").style.display = "none";
+  }
+</script>
+
+<style>
+  .form-row { display:flex; gap:16px; flex-wrap:wrap; }
+  .form-row .form-group { flex:1; min-width:130px; }
+  .tabla { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:10px 12px; text-align:left; font-family:'Playfair Display',serif; font-size:.8rem; }
+  .tabla td { padding:9px 12px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+  .tabla tr:hover td { background:var(--campo-bg); }
+</style>
+{% endblock %}

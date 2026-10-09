@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1 style="font-size:1.8rem; letter-spacing:3px;">NUEVA VENTA</h1>
+  <p>PAHJAL WESTERN BOOTS</p>
+  <hr class="divider">
+</div>
+
+<div style="display:flex; gap:20px; padding:0 20px 30px; flex-wrap:wrap;">
+
+  <!-- COLUMNA IZQUIERDA: buscador + carrito -->
+  <div style="flex:2; min-width:300px;">
+
+    <div class="card" style="margin:0 0 16px 0;">
+      <div class="card-title">🔍 Buscar artículo</div>
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <input type="text" id="buscador"
+               placeholder="Escanea código o escribe nombre..."
+               style="flex:1; padding:10px; background:var(--campo-bg);
+                      border:1px solid var(--oro); border-radius:6px;
+                      color:var(--crema); font-size:1rem;" autofocus>
+        <button onclick="buscar()" class="btn btn-rojo" style="padding:10px 18px;">
+          Buscar
+        </button>
+      </div>
+      <div id="resultados"></div>
+    </div>
+
+    <div class="card" style="margin:0;">
+      <div class="card-title">🛒 Artículos en la venta</div>
+      {% if carrito %}
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>ARTÍCULO</th>
+            <th>PRECIO</th>
+            <th>CANT.</th>
+            <th>SUBTOTAL</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in carrito %}
+          <tr>
+            <td>
+              {{ item.nombre }}<br>
+              <span style="font-size:.75rem; color:var(--oro);">
+                {{ item.codigo }}
+                {% if item.talla != "—" %} | Talla: {{ item.talla }}{% endif %}
+                {% if item.color != "—" %} | Color: {{ item.color }}{% endif %}
+              </span>
+            </td>
+            <td>${{ "%.2f"|format(item.precio) }}</td>
+            <td style="text-align:center;">{{ item.cantidad }}</td>
+            <td>${{ "%.2f"|format(item.subtotal) }}</td>
+            <td>
+              <a href="/carrito/quitar/{{ item.id }}"
+                 style="color:var(--rojo); font-size:1.1rem;" title="Quitar">✕</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="text-align:right; margin-top:14px; padding-top:10px; border-top:2px solid var(--rojo);">
+        <span style="font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--oro-claro);">TOTAL:</span>
+        <span style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--blanco); margin-left:10px;">
+          ${{ "%.2f"|format(carrito|sum(attribute='subtotal')) }}
+        </span>
+      </div>
+      <a href="/carrito/limpiar"
+         style="display:inline-block; margin-top:10px; font-size:.8rem; color:var(--oro); text-decoration:none;">
+        🗑️ Limpiar carrito
+      </a>
+      {% else %}
+      <p style="color:var(--oro-claro); text-align:center; padding:20px 0;">
+        Sin artículos todavía. Busca o escanea uno arriba. 👆
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COLUMNA DERECHA: datos de la venta -->
+  <div style="flex:1; min-width:260px;">
+    <div class="card" style="margin:0;">
+      <div class="card-title">📋 Datos de la venta</div>
+      <form method="POST" action="/cobrar">
+        <div class="form-group">
+          <label>MÉTODO DE PAGO *</label>
+          <select name="id_metodo" required>
+            <option value="">— Selecciona —</option>
+            {% for m in metodos %}
+              <option value="{{ m[0] }}">{{ m[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--oro);">
+          <p style="font-size:.82rem; color:var(--oro-claro); margin-bottom:12px;">
+            Vendedor: <strong style="color:var(--crema);">{{ session.nombre }} {{ session.apellido }}</strong>
+          </p>
+        </div>
+        {% if carrito %}
+        <button type="submit" class="btn btn-verde btn-full">💰 Cobrar</button>
+        {% else %}
+        <button type="submit" class="btn btn-verde btn-full" disabled style="opacity:.4; cursor:not-allowed;">💰 Cobrar</button>
+        {% endif %}
+        <a href="/bienvenida" class="btn btn-gris btn-full" style="margin-top:10px; display:block; text-align:center;">← Cancelar</a>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Formulario oculto para agregar al carrito -->
+<form id="form_agregar" method="POST" action="/carrito/agregar">
+  <input type="hidden" id="f_id"     name="id_articulo">
+  <input type="hidden" id="f_nombre" name="nombre">
+  <input type="hidden" id="f_precio" name="precio">
+  <input type="hidden" id="f_codigo" name="codigo">
+  <input type="hidden" id="f_talla"  name="talla">
+  <input type="hidden" id="f_color"  name="color">
+</form>
+
+<script>
+  const buscador = document.getElementById("buscador");
+  buscador.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") { e.preventDefault(); buscar(); }
+  });
+
+  function buscar() {
+    const q = buscador.value.trim();
+    if (!q) return;
+    fetch(`/api/buscar-articulo?q=${encodeURIComponent(q)}`)
+      .then(r => r.json())
+      .then(data => {
+        const div = document.getElementById("resultados");
+        if (data.length === 0) {
+          div.innerHTML = `<p style="color:#ff6b6b; font-size:.85rem;">❌ No se encontró ningún artículo.</p>`;
+          return;
+        }
+        if (data.length === 1 && data[0].codigo === q) {
+          agregarAlCarrito(data[0]);
+          buscador.value = "";
+          div.innerHTML  = "";
+          return;
+        }
+        div.innerHTML = data.map(a => `
+          <div onclick="agregarAlCarrito(${JSON.stringify(a).replace(/"/g,'&quot;')})"
+               style="padding:10px; border:1px solid var(--oro); border-radius:6px;
+                      margin-bottom:8px; cursor:pointer; background:var(--campo-bg);"
+               onmouseover="this.style.background='#5a3010'"
+               onmouseout="this.style.background='var(--campo-bg)'">
+            <strong style="color:var(--crema);">${a.nombre}</strong>
+            <span style="color:var(--oro); margin-left:8px;">${a.marca}</span>
+            <span style="float:right; color:var(--oro-claro);">$${a.precio.toFixed(2)}</span><br>
+            <span style="font-size:.75rem; color:var(--oro);">${a.codigo}</span>
+          </div>`).join("");
+      });
+  }
+
+  function agregarAlCarrito(art) {
+  document.getElementById("f_id").value     = art.id;
+  document.getElementById("f_nombre").value = art.nombre;
+  document.getElementById("f_precio").value = art.precio;
+  document.getElementById("f_codigo").value = art.codigo;
+  document.getElementById("f_talla").value  = art.talla;
+  document.getElementById("f_color").value  = art.color;
+  document.getElementById("form_agregar").submit();
+}
+</script>
+
+<style>
+  .tabla { width:100%; border-collapse:collapse; font-size:.85rem; }
+  .tabla th { background:var(--rojo); color:var(--blanco); padding:8px 10px; text-align:left; font-family:'Playfair Display',serif; font-size:.78rem; }
+  .tabla td { padding:8px 10px; border-bottom:1px solid var(--campo-bg); color:var(--crema); }
+</style>
+
+{% endblock %}
